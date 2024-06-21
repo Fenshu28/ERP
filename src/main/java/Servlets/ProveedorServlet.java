@@ -37,14 +37,19 @@ public class ProveedorServlet extends HttpServlet {
         PrintWriter out = response.getWriter();
         ResultSet rs = null;
 
+        String namepro = null;
+        String dir = null;
+        String rfc1 = null;
+        String telefono1 = null;
+
         int id = Integer.parseInt(request.getParameter("idProveedor"));
         int editar = Integer.parseInt(request.getParameter("tipo"));
-
-        String namepro = request.getParameter("nombre");
-        String dir = request.getParameter("direccion");
-        String rfc1 = request.getParameter("rfc");
-        String telefono1 = request.getParameter("telefono");
-
+        if (editar != 2) {
+            namepro = request.getParameter("nombre");
+            dir = request.getParameter("direccion");
+            rfc1 = request.getParameter("rfc");
+            telefono1 = request.getParameter("telefono");
+        }
         try {
             Class.forName("com.mysql.jdbc.Driver");
             Connection conexion = DriverManager.getConnection(

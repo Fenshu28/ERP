@@ -186,6 +186,28 @@
             </div>
         </div>
 
+        <!-- Cuadro de diálogo (aviso) -->
+        <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Confirmación de eliminación</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p>¿Estás seguro de que deseas eliminar este proveedor?</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                        <button id="confirm-delete-btn" type="button" class="btn btn-danger" onclick="confirmDelete()">Eliminar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
 
     </body>
 
@@ -222,13 +244,19 @@
                                 });
                             });
                             function deleteProveedor(idProveedor) {
-        <%
-                            cs = conexion.prepareCall("call deleteProveedor (" + idProveedor + " )");
-                            cs.executeQuery();
-        %>
-                window.location.href = "Proveedores.jsp";
-                                //window.location.href = "ProveedorServlet?id=" + idProveedor + "&&tipo=2";
+                                // Asignar el ID del proveedor a un campo oculto dentro del modal de aviso
+                                document.getElementById('confirm-delete-btn').setAttribute('data-id', idProveedor);
+                                // Mostrar el modal de aviso
+                                $('#deleteModal').modal('show');
                             }
+
+// Función para confirmar la eliminación después de la confirmación del usuario
+                            function confirmDelete() {
+                                var idProveedor = document.getElementById('confirm-delete-btn').getAttribute('data-id');
+                                // Redirigir solo si el usuario confirma la eliminación
+                                window.location.href = "ProveedorServlet?idProveedor=" + idProveedor + "&&tipo=2";
+                            }
+
                             function editProveedor(idProveedor) {
                                 window.location.href = "ConfigProveedor.jsp?id=" + idProveedor + "&&tipo=1";
                             }
