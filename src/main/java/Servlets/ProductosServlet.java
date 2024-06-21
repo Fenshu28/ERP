@@ -7,6 +7,8 @@ package Servlets;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -30,59 +32,65 @@ public class ProductosServlet extends HttpServlet {
      * @throws IOException if an I/O error occurs
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+            throws ServletException, IOException, SQLException, ClassNotFoundException {
         response.setContentType("text/html;charset=UTF-8");
         PrintWriter out = response.getWriter();
         ResultSet rs = null;
-        Connection conexion = null;
-        String name = request.getParameter("nombre");
-        String desc = request.getParameter("desc");
-        String marca = request.getParameter("marca");
-        double precio = Double.parseDouble(request.getParameter("precio"));
-        double costo = Double.parseDouble(request.getParameter("costo"));
-        int min = Integer.parseInt(request.getParameter("min"));
-        int stock = Integer.parseInt(request.getParameter("stock"));
-        int prov = Integer.parseInt(request.getParameter("prov"));
 
+        String namepro = null;
+        String dir = null;
+        String rfc1 = null;
+        String telefono1 = null;
+
+        int id = Integer.parseInt(request.getParameter("idProveedor"));
+        int editar = Integer.parseInt(request.getParameter("tipo"));
+        if (editar != 2) {
+            namepro = request.getParameter("nombre");
+            dir = request.getParameter("direccion");
+            rfc1 = request.getParameter("rfc");
+            telefono1 = request.getParameter("telefono");
+        }
         try {
-//Leemos el driver de Mysql
             Class.forName("com.mysql.jdbc.Driver");
-// Se obtiene una conexión con la base de datos.
-            conexion = DriverManager.getConnection(
+            Connection conexion = DriverManager.getConnection(
                     "jdbc:mysql://localhost/ERP", "root", "kira?123");
-// Permite ejecutar sentencias SQL sin parámetros
             Statement s = conexion.createStatement();
-//            s.executeUpdate("Insert into productos "
-//                    + "values(0,'" + name + "','" + desc + "','" + marca + "',"
-//                    + precio + "," + costo + "," + min + "," + stock + ","+prov+")");
-            s.execute("call insProducto('" + name + "','" + desc + "','" + marca + "',"
-                    + precio + "," + costo + "," + min + "," + stock + "," + prov + ")");
-            rs = s.executeQuery("select * from productos");
-//Decimos que nos hemos conectado
-            out.println("<html>");
-            out.println("<body>");
-            out.println("<h1>Datos Ingresados Exitosamente</h1>");
-            out.println("<table align='center' with='75%' border=1>");
-            while (rs.next()) {
-                out.println("<tr><td>" + rs.getString("nombre") + "</td><td>"
-                        + rs.getString("descripcion") + "</td><td>" + rs.getString("marca") + "</td><td>"
-                        + rs.getString("precio") + "</td><td>" + rs.getInt("costo") + "</td><td>" + rs.getString("minimo") + "</td>"
-                        + "                 <td>" + rs.getInt("stok") + "</td> </tr>");
+            if (editar != 0) {
+                if (editar == 1) {
+                    s.execute("call updateProveedor (" + id + ",'" + namepro + "'  ,'" + dir + "'  ,'" + rfc1 + "'  ," + telefono1 + "  )");
+                    sendResponse(request, response, "Proveedor actualizado con exito.", "Información");
+                } else {
+                    s.execute("call deleteProveedor (" + id + " )");
+                    sendResponse(request, response, "Proveedor eliminado con exito.", "Información");
+                }
+            } else {
+                s.execute("call insertProveedor (0,'" + namepro + "','" + dir + "','" + rfc1 + "'," + telefono1 + ")");
+                sendResponse(request, response, "Proveedor creado con exito.", "Información");
             }
-            out.println("</table>");
-            out.println("</body>");
-            out.println("</html>");
+
             conexion.close();
+
         } catch (ClassNotFoundException e1) {
 //Error si no puedo leer el driver
             out.println("ERROR:No encuentro el driver de la BD: "
                     + e1.getMessage());
+            sendResponse(request, response, "Ocurrio un error:" + e1.getMessage(), "Error");
         } catch (SQLException e2) {
 //Error SQL: login/passwd mal
             out.println("ERROR:Fallo en SQL: " + e2.getMessage());
+            sendResponse(request, response, "Ocurrio un error:" + e2.getMessage(), "Error");
         } finally {
             out.close();
         }
+
+    }
+
+    private void sendResponse(HttpServletRequest request, HttpServletResponse response, String respuesta, String tipo) throws IOException, ServletException {
+        request.setAttribute("idResult", respuesta);
+        request.setAttribute("tipoResult", tipo);
+        request.setAttribute("showModal", true);
+        request.getRequestDispatcher("Proveedores.jsp").forward(request, response);
+
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
@@ -97,7 +105,13 @@ public class ProductosServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response);
+        try {
+            processRequest(request, response);
+        } catch (SQLException ex) {
+            Logger.getLogger(ProveedorServlet.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(ProveedorServlet.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     /**
@@ -111,7 +125,13 @@ public class ProductosServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response);
+        try {
+            processRequest(request, response);
+        } catch (SQLException ex) {
+            Logger.getLogger(ProveedorServlet.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(ProveedorServlet.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     /**

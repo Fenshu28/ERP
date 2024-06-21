@@ -41,7 +41,7 @@
         </style>
     </head>
     <body>
-        <%!int indexProveedor = -1;%>
+        
         <div class="container">
             <div class="row m-5">
                 <h2 class="col-9">Lista de Proveedores</h2>
@@ -61,7 +61,7 @@
                 </thead>
                 <tbody>
                     <% 
-                        List<Proveedor> proveedores = new ArrayList<>();
+                        
                         try {
                             Class.forName("com.mysql.jdbc.Driver");
                             // Establecer conexión con la base de datos
@@ -79,7 +79,7 @@
                                 proveedor.setDireccion(rs.getString("direccion"));
                                 proveedor.setRfc(rs.getString("rfc"));
                                 proveedor.setTelefono(rs.getString("telefono"));
-                                proveedores.add(proveedor);
+                                
                     %>
                     <tr>
                         <td><%= i %></td>
@@ -250,7 +250,7 @@
                                 $('#deleteModal').modal('show');
                             }
 
-// Función para confirmar la eliminación después de la confirmación del usuario
+                            // Función para confirmar la eliminación después de la confirmación del usuario
                             function confirmDelete() {
                                 var idProveedor = document.getElementById('confirm-delete-btn').getAttribute('data-id');
                                 // Redirigir solo si el usuario confirma la eliminación
@@ -264,9 +264,9 @@
                                 window.location.href = "ConfigProveedor.jsp?id=0";
                             }
                             window.onload = function () {
-        <% if (request.getAttribute("idResult") != null) { %>
-                                $('#myModal').modal('show');
-        <% } %>
+                                <% if (request.getAttribute("idResult") != null) { %>
+                                        $('#myModal').modal('show');
+                                <% } %>
                             };
     </script>
 
